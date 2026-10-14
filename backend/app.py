@@ -15,6 +15,8 @@ db = client.test
 
 collection = db['Flask_tutorial']
 
+todo_collection = db['todo_items']
+
 app = Flask(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -27,6 +29,24 @@ def submit():
     collection.insert_one(form_data)
     print(form_data)
     return 'Data submitted succesfully !!'
+
+
+@app.route('/submittodoitem', methods=['POST'])
+def submit_todo_item():
+    data = request.form or request.get_json(silent=True) or {}
+
+    item_name = str(data.get('itemName', '')).strip()
+    item_description = str(data.get('itemDescription', '')).strip()
+
+    if not item_name or not item_description:
+        return 'itemName and itemDescription are required.', 400
+
+    todo_collection.insert_one({
+        'itemName': item_name,
+        'itemDescription': item_description
+    })
+
+    return 'To-Do item saved successfully !!'
 
 
 @app.route('/view')
